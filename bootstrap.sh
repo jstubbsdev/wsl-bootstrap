@@ -413,6 +413,8 @@ main() {
     system_update
     install_apt_packages
     install_zsh
+    setup_directories
+    install_dotfiles
     install_nvm
     install_copilot
     install_aws_cli
@@ -422,8 +424,6 @@ main() {
     install_docker
     install_jetbrains_toolbox
     install_win32yank
-    setup_directories
-    install_dotfiles
 
     echo ""
     echo -e "${GREEN}${BOLD}Bootstrap complete! 🎉${RESET}"
