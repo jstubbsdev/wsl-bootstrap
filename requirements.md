@@ -57,6 +57,8 @@ Where not specified, use apt install.
   - python3-setuptools
 - libkrb5-dev
 - libssh-dev
+- bzip2 (required for building PHP)
+- build-essential (required for building PHP)
 
 ## Directories
 

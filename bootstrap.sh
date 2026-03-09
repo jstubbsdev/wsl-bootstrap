@@ -78,7 +78,9 @@ install_apt_packages() {
         python3-venv \
         python3-setuptools \
         libkrb5-dev \
-        libssh-dev
+        libssh-dev \
+        bzip2 \
+        build-essential
     success "Core APT packages installed"
 }
 
@@ -122,16 +124,17 @@ install_nvm() {
         skip "nvm"
     fi
 
-    # Load nvm for use in this script session
-    export NVM_DIR="$HOME/.nvm"
-    # shellcheck source=/dev/null
-    [[ -s "$NVM_DIR/nvm.sh" ]] && source "$NVM_DIR/nvm.sh"
-
-    log "Installing latest active Node.js LTS..."
-    nvm install --lts
-    nvm use --lts
-    nvm alias default 'lts/*'
-    success "Node.js $(node --version) set as default"
+## below is disabled for now as `nvm` isn't correctly sourced.
+#    # Load nvm for use in this script session
+#    export NVM_DIR="$HOME/.nvm"
+#    # shellcheck source=/dev/null
+#    [[ -s "$NVM_DIR/nvm.sh" ]] && source "$NVM_DIR/nvm.sh"
+#
+#    log "Installing latest active Node.js LTS..."
+#    nvm install --lts
+#    nvm use --lts
+#    nvm alias default 'lts/*'
+#    success "Node.js $(node --version) set as default"
 }
 
 # ── GitHub Copilot CLI ────────────────────────────────────────────────────────
