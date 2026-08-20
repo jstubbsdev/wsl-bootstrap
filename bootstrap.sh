@@ -69,6 +69,7 @@ install_apt_packages() {
         htop \
         xinit \
         gpg \
+        gpg-agent \
         make \
         wget \
         unzip \
@@ -80,7 +81,12 @@ install_apt_packages() {
         libkrb5-dev \
         libssh-dev \
         bzip2 \
-        build-essential
+        build-essential \
+        xdg-utils \
+        nautilus \
+        stalonetray \
+        amazon-ecr-credential-helper \
+        bc
     success "Core APT packages installed"
 }
 
@@ -120,6 +126,10 @@ install_nvm() {
             | jq -r '.tag_name')
         curl -fsSL "https://raw.githubusercontent.com/nvm-sh/nvm/${nvm_version}/install.sh" | bash
         success "nvm ${nvm_version} installed"
+
+        log "Installing nvm auto-use ZSH plugin"
+        git clone https://github.com/Sparragus/zsh-auto-nvm-use ~/.oh-my-zsh/custom/plugins/zsh-auto-nvm-use
+        success "nvm auto-use ZSH plugin"
     else
         skip "nvm"
     fi
@@ -281,6 +291,33 @@ install_phpenv() {
     fi
 }
 
+# ── Composer ──────────────────────────────────────────────────────────────────
+
+install_composer() {
+    local composer_bin_path="/usr/local/bin/composer"
+
+    log "Installing Composer..."
+    if command_exists composer_bin_path; then
+        skip "Composer ($(composer --version))"
+    else
+        EXPECTED_CHECKSUM="$(php -r 'copy("https://composer.github.io/installer.sig", "php://stdout");')"
+        php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
+        ACTUAL_CHECKSUM="$(php -r "echo hash_file('sha384', 'composer-setup.php');")"
+
+        if [ "$EXPECTED_CHECKSUM" != "$ACTUAL_CHECKSUM" ]; then
+            >&2 echo 'ERROR: Invalid installer checksum'
+            rm composer-setup.php
+            exit 1
+        fi
+
+        php composer-setup.php --quiet
+        rm composer-setup.php
+        sudo mv ./composer.phar $composer_bin_path
+
+        success "Composer installed: $(composer --version)"
+    fi
+}
+
 # ── Docker ────────────────────────────────────────────────────────────────────
 
 install_docker() {
@@ -318,9 +355,9 @@ install_docker() {
 install_jetbrains_toolbox() {
     log "Installing JetBrains Toolbox..."
 
-    local install_dir="$HOME/.local/share/JetBrains/Toolbox/bin"
+    local install_dir="$HOME/.local/share/JetBrains/Toolbox"
 
-    if [[ -f "$install_dir/jetbrains-toolbox" ]]; then
+    if [[ -f "$install_dir" ]]; then
         skip "JetBrains Toolbox"
         return
     fi
@@ -336,8 +373,7 @@ install_jetbrains_toolbox() {
     local extracted_dir
     extracted_dir=$(find "$tmp_dir" -maxdepth 1 -name 'jetbrains-toolbox-*' -type d | head -1)
     mkdir -p "$install_dir"
-    cp "$extracted_dir/jetbrains-toolbox" "$install_dir/"
-    chmod +x "$install_dir/jetbrains-toolbox"
+    cp -r "$extracted_dir/bin" "$install_dir"
     rm -rf "$tmp_dir"
     success "JetBrains Toolbox installed to $install_dir"
     warn "Run '$install_dir/jetbrains-toolbox' to complete first-time setup"
@@ -424,6 +460,7 @@ main() {
     install_docker
     install_jetbrains_toolbox
     install_win32yank
+    install_composer
 
     echo ""
     echo -e "${GREEN}${BOLD}Bootstrap complete! 🎉${RESET}"
