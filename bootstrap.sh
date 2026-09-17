@@ -85,6 +85,8 @@ install_apt_packages() {
         xdg-utils \
         nautilus \
         stalonetray \
+        libxtst6 \
+        libgl1 \
         amazon-ecr-credential-helper \
         bc
     success "Core APT packages installed"
