@@ -14,7 +14,7 @@ CODE_DIR="$HOME/Work"
 # PHP version to install via phpenv.
 # Check the FROM line in:
 # https://github.com/fvp-mds/fvp-b2c-api/blob/master/build/images/b2c-base/Dockerfile
-PHP_VERSION="8.2.28"
+PHP_VERSION="8.2.30"
 
 # ── Colours ───────────────────────────────────────────────────────────────────
 
@@ -125,6 +125,13 @@ install_nvm() {
         nvm_version=$(curl -fsSL https://api.github.com/repos/nvm-sh/nvm/releases/latest \
             | jq -r '.tag_name')
         curl -fsSL "https://raw.githubusercontent.com/nvm-sh/nvm/${nvm_version}/install.sh" | bash
+
+        export NVM_DIR="$HOME/.nvm"
+        [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+        [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+
+        nvm install --lts
+
         success "nvm ${nvm_version} installed"
 
         log "Installing nvm auto-use ZSH plugin"
@@ -151,10 +158,6 @@ install_nvm() {
 
 install_copilot() {
     log "Installing GitHub Copilot CLI..."
-
-    export NVM_DIR="$HOME/.nvm"
-    # shellcheck source=/dev/null
-    [[ -s "$NVM_DIR/nvm.sh" ]] && source "$NVM_DIR/nvm.sh"
 
     if npm list -g --depth=0 2>/dev/null | grep -q '@github/copilot'; then
         skip "GitHub Copilot CLI"
@@ -253,6 +256,7 @@ install_phpenv() {
         libcurl4-openssl-dev \
         libpng-dev \
         libjpeg-dev \
+        libicu-dev \
         libonig-dev \
         libreadline-dev \
         libtidy-dev \
